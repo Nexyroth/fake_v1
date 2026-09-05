@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#020504">
+<meta name="description" content="Nexyroth Hacker Toolkit - Browser-based cybersecurity simulation and learning toolkit.">
+<title>Nexyroth · Hacker Toolkit</title>
+
+<style>
+/* ============================================================
+   NEXYROTH HACKER TOOLKIT · v1.1
+   Single-file build · No backend · Browser only
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #020504;
+    --bg-soft: #050907;
+    --panel: rgba(5, 12, 9, .72);
+    --panel-2: rgba(3, 8, 6, .82);
+    --green: #00e89a;
+    --green-soft: #00b878;
+    --green-dim: #477866;
+    --text: #c5d8cf;
+    --text-dim: #6f8d80;
+    --border: rgba(0, 232, 154, .09);
+    --border-hover: rgba(0, 232, 154, .26);
+    --warning: #d99a52;
+    --danger: #e45d65;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(0, 232, 154, .07), transparent 35%),
+        var(--bg);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+}
+
+::selection {
+    background: rgba(0, 232, 154, .25);
+    color: #fff;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    background: #020504;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--green-soft);
+    border-radius: 10px;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+    width: min(1200px, calc(100% - 40px));
+    margin: auto;
+}
+
+/* ============================================================
+   BACKGROUND
+   ============================================================ */
+
+#bgCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .2;
+}
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: .035;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3px,
+        rgba(0, 255, 170, .35) 4px
+    );
+}
+
+.vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 45%,
+        rgba(0, 0, 0, .42) 100%
+    );
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 58px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: rgba(2, 5, 4, .82);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.logo {
+    font-family: "JetBrains Mono", "Cascadia Code", monospace;
+    color: var(--green);
+    font-size: .88rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 0 22px rgba(0, 232, 154, .2);
+}
+
+.logo span {
+    color: #66877a;
+    font-weight: 400;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #547468;
+    font: 600 .68rem "JetBrains Mono", monospace;
+    letter-spacing: 1px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px rgba(0, 232, 154, .8);
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: .35;
+        transform: scale(.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+    position: relative;
+    z-index: 5;
+    min-height: 430px;
+    padding: 135px 0 65px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+
+.hero-inner {
+    width: 100%;
+}
+
+.terminal-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 20px;
+    color: #4c7162;
+    font: .7rem "JetBrains Mono", monospace;
+    letter-spacing: 1px;
+}
+
+.terminal-line::before {
+    content: ">";
+    color: var(--green);
+}
+
+.hero h1 {
+    font: 700 clamp(2.3rem, 7vw, 5.1rem) "JetBrains Mono", "Cascadia Code", monospace;
+    letter-spacing: -2px;
+    color: #cce4da;
+    line-height: 1.08;
+    text-shadow: 0 0 70px rgba(0, 232, 154, .08);
+}
+
+.hero h1 .green {
+    color: var(--green);
+    text-shadow:
+        0 0 20px rgba(0, 232, 154, .25),
+        0 0 70px rgba(0, 232, 154, .08);
+}
+
+.hero-subtitle {
+    max-width: 760px;
+    margin: 20px auto 0;
+    color: #658176;
+    font: .95rem/1.9 "JetBrains Mono", monospace;
+}
+
+.hero-badges {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.badge {
+    padding: 5px 13px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(0, 232, 154, .025);
+    color: #6d9c89;
+    font: .66rem "JetBrains Mono", monospace;
+    letter-spacing: 1px;
+}
+
+.badge.green {
+    color: var(--green);
+    border-color: rgba(0, 232, 154, .18);
+}
+
+/* ============================================================
+   INTRO
+   ============================================================ */
+
+.intro-section {
+    position: relative;
+    z-index: 5;
+    padding: 15px 0 30px;
+}
+
+.intro-box {
+    max-width: 950px;
+    margin: auto;
+    padding: 25px 28px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: linear-gradient(
+        135deg,
+        rgba(8, 17, 13, .76),
+        rgba(3, 8, 6, .58)
+    );
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.015);
+}
+
+.intro-title {
+    margin-bottom: 9px;
+    color: #cde1d8;
+    font: 600 1rem "JetBrains Mono", monospace;
+}
+
+.green-text {
+    color: var(--green);
+}
+
+.intro-box p {
+    color: #718d81;
+    font: .82rem/1.85 "JetBrains Mono", monospace;
+}
+
+.intro-box strong {
+    color: #a6c2b5;
+}
+
+.tool-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 25px;
+    margin: 15px 0;
+    list-style: none;
+}
+
+.tool-list li {
+    color: #6e8c7e;
+    font: .75rem/1.7 "JetBrains Mono", monospace;
+}
+
+.tool-list li::before {
+    content: "⟡ ";
+    color: var(--green);
+}
+
+.note {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 232, 154, .05);
+    color: #4d7061 !important;
+    font-size: .68rem !important;
+}
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+
+.tools-section {
+    position: relative;
+    z-index: 5;
+    padding: 5px 0 55px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0 15px;
+}
+
+.section-title {
+    color: #8faea0;
+    font: 600 .8rem "JetBrains Mono", monospace;
+    letter-spacing: 2px;
+}
+
+.section-title::before {
+    content: "[ ";
+    color: var(--green);
+}
+
+.section-title::after {
+    content: " ]";
+    color: var(--green);
+}
+
+.mode {
+    color: #416456;
+    font: .62rem "JetBrains Mono", monospace;
+}
+
+/* ============================================================
+   WARNING
+   ============================================================ */
+
+.warning-banner {
+    margin-bottom: 25px;
+    padding: 11px 15px;
+    border-left: 2px solid var(--green-soft);
+    border-radius: 7px;
+    background: rgba(0, 232, 154, .025);
+    color: #57766a;
+    font: .68rem/1.6 "JetBrains Mono", monospace;
+    text-align: center;
+}
+
+.warning-banner strong {
+    color: var(--green);
+}
+
+/* ============================================================
+   TOOL GRID
+   ============================================================ */
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.tool-card {
+    position: relative;
+    overflow: hidden;
+    padding: 21px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(7, 15, 12, .78),
+            rgba(3, 7, 5, .7)
+        );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.tool-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 15%;
+    width: 70%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 232, 154, .35),
+        transparent
+    );
+    opacity: 0;
+    transition: .3s;
+}
+
+.tool-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-hover);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .4),
+        0 0 35px rgba(0, 232, 154, .025);
+}
+
+.tool-card:hover::before {
+    opacity: 1;
+}
+
+.tool-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+}
+
+.icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: rgba(0, 232, 154, .035);
+    font-size: 1.15rem;
+    filter: grayscale(.15);
+}
+
+.tool-title {
+    color: #b9d0c6;
+    font: 600 .95rem "JetBrains Mono", monospace;
+}
+
+.tool-desc {
+    margin-top: 3px;
+    color: #607c70;
+    font: .69rem/1.6 "JetBrains Mono", monospace;
+}
+
+.local-tag {
+    margin-left: auto;
+    padding: 3px 7px;
+    border: 1px solid rgba(0, 232, 154, .08);
+    border-radius: 5px;
+    color: #4c7766;
+    font: .54rem "JetBrains Mono", monospace;
+    white-space: nowrap;
+}
+
+.field {
+    margin-top: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #507263;
+    font: .61rem "JetBrains Mono", monospace;
+    letter-spacing: .5px;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 37px;
+    padding: 8px 11px;
+    border: 1px solid rgba(0, 232, 154, .075);
+    border-radius: 9px;
+    outline: none;
+    background: rgba(0, 0, 0, .28);
+    color: #a9c7b9;
+    font: .7rem "JetBrains Mono", monospace;
+    transition: .2s;
+}
+
+input::placeholder {
+    color: #3c594e;
+}
+
+input:focus,
+select:focus {
+    border-color: rgba(0, 232, 154, .38);
+    box-shadow: 0 0 0 3px rgba(0, 232, 154, .035);
+}
+
+select option {
+    background: #07100c;
+    color: #b9d0c6;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.btn {
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    font: 700 .65rem "JetBrains Mono", monospace;
+    transition: .2s;
+}
+
+.btn-run {
+    padding: 8px 17px;
+    background: var(--green);
+    color: #00130c;
+}
+
+.btn-run:hover {
+    background: #29f5ae;
+    box-shadow: 0 0 25px rgba(0, 232, 154, .18);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    padding: 7px 12px;
+    border: 1px solid rgba(0, 232, 154, .1);
+    background: rgba(0, 232, 154, .025);
+    color: #648a79;
+}
+
+.btn-secondary:hover {
+    border-color: rgba(0, 232, 154, .25);
+    color: var(--green);
+}
+
+.output {
+    position: relative;
+    min-height: 49px;
+    max-height: 160px;
+    overflow: auto;
+    margin-top: 11px;
+    padding: 10px 11px;
+    border: 1px solid rgba(0, 232, 154, .05);
+    border-radius: 9px;
+    background: rgba(0, 0, 0, .35);
+    color: #7fa093;
+    font: .66rem/1.65 "JetBrains Mono", monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.output.ok {
+    color: #78cba9;
+}
+
+.output.warn {
+    color: var(--warning);
+}
+
+.output.err {
+    color: var(--danger);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+    position: relative;
+    z-index: 5;
+    padding: 24px 0 28px;
+    border-top: 1px solid rgba(0, 232, 154, .04);
+    background: rgba(2, 5, 4, .8);
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.footer-brand {
+    color: #557467;
+    font: .68rem "JetBrains Mono", monospace;
+}
+
+.footer-brand strong {
+    color: var(--green);
+}
+
+.footer-copy {
+    color: #344d43;
+    font: .58rem "JetBrains Mono", monospace;
+    text-align: right;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 800px) {
+    .tool-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tool-list {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        min-height: 390px;
+        padding-top: 120px;
+    }
+}
+
+@media (max-width: 520px) {
+    .container {
+        width: min(100% - 28px, 1200px);
+    }
+
+    .navbar {
+        padding: 0 14px;
+    }
+
+    .logo {
+        font-size: .72rem;
+        letter-spacing: 1px;
+    }
+
+    .system-status {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+        font-size: .7rem;
+    }
+
+    .intro-box {
+        padding: 19px;
+    }
+
+    .tool-card {
+        padding: 17px;
+    }
+
+    .local-tag {
+        display: none;
+    }
+
+    .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .footer-copy {
+        text-align: left;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="vignette"></div>
+<div class="scanlines"></div>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+
+<header class="navbar">
+    <div class="logo">⌘ NEXYROTH <span>:: HACKER KIT</span></div>
+
+```
+<div class="system-status">
+    <span class="status-dot"></span>
+    SYSTEM::ONLINE
+</div>
+```
+
+</header>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+
+<section class="hero">
+    <div class="container hero-inner">
+
+```
+    <div class="terminal-line">
+        NEXYROTH.SECURITY // BROWSER LAB
+    </div>
+
+    <h1>
+        <span class="green">Hacker</span><br>
+        Toolkit
+    </h1>
+
+    <p class="hero-subtitle">
+        Bộ công cụ mô phỏng các khái niệm an ninh mạng phổ biến.
+        Thuần HTML, CSS và JavaScript. Không cần backend.
+    </p>
+
+    <div class="hero-badges">
+        <span class="badge green">● EDUCATIONAL</span>
+        <span class="badge">LOCAL PROCESSING</span>
+        <span class="badge">SIMULATION MODE</span>
+        <span class="badge">v1.1</span>
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- ============================================================
+     INTRO
+     ============================================================ -->
+
+<section class="intro-section">
+    <div class="container">
+
+```
+    <div class="intro-box">
+
+        <div class="intro-title">
+            ⟡ Giới thiệu về
+            <span class="green-text">Nexyroth Hacker Toolkit</span>
+        </div>
+
+        <p>
+            Đây là một phòng thí nghiệm cybersecurity chạy trực tiếp
+            trong trình duyệt, được thiết kế cho mục đích
+            <strong>học tập, nghiên cứu và trình diễn</strong>.
+        </p>
+
+        <p style="margin-top:8px;">
+            Các công cụ mạng bên dưới hoạt động ở
+            <span class="green-text">SIMULATION MODE</span>.
+            Chúng không gửi gói tin, không thực hiện DNS lookup,
+            không quét hệ thống bên ngoài và không gửi dữ liệu người dùng
+            tới máy chủ.
+        </p>
+
+        <ul class="tool-list">
+            <li>Port Scanner — mô phỏng trạng thái cổng TCP.</li>
+            <li>Ping Simulator — mô phỏng echo reply và latency.</li>
+            <li>Subdomain Scanner — mô phỏng quá trình tìm subdomain.</li>
+            <li>Password Generator — sinh mật khẩu bằng Web Crypto API.</li>
+            <li>Hash Generator — SHA-1 / SHA-256 / SHA-512 / MD5.</li>
+            <li>Crypto Lab — Base64 Unicode và Caesar cipher.</li>
+        </ul>
+
+        <p class="note">
+            ⟡ NETWORK TOOLS ARE SIMULATED · CRYPTO OPERATIONS RUN LOCALLY
+        </p>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- ============================================================
+     TOOLS
+     ============================================================ -->
+
+<section class="tools-section">
+    <div class="container">
+
+```
+    <div class="section-header">
+        <div class="section-title">SECURITY MODULES</div>
+        <div class="mode">MODE:: LOCAL / SIMULATION</div>
+    </div>
+
+    <div class="warning-banner">
+        <strong>⟡ DISCLAIMER</strong>
+        — Chỉ sử dụng cho học tập và trình diễn.
+        Không dùng để truy cập hoặc kiểm thử hệ thống khi chưa được phép.
+    </div>
+
+    <div class="tool-grid">
+
+        <!-- PORT SCANNER -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">🔍</div>
+
+                <div>
+                    <div class="tool-title">Port Scanner</div>
+                    <div class="tool-desc">
+                        Mô phỏng quét các cổng TCP phổ biến.
+                    </div>
+                </div>
+
+                <span class="local-tag">SIM</span>
+            </div>
+
+            <div class="field">
+                <label>IP / HOST MỤC TIÊU</label>
+                <input id="portTarget" type="text" value="127.0.0.1">
+            </div>
+
+            <div class="field">
+                <label>DANH SÁCH CỔNG</label>
+                <input id="portList" type="text" value="80,443,22,8080,3306">
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="scanPorts">⟡ QUÉT</button>
+                <button class="btn btn-secondary" data-clear="portOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="portOutput">COPY</button>
+            </div>
+
+            <div class="output" id="portOutput">Sẵn sàng.</div>
+
+        </article>
+
+        <!-- PING -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">📡</div>
+
+                <div>
+                    <div class="tool-title">Ping Simulator</div>
+                    <div class="tool-desc">
+                        Mô phỏng ICMP echo và thời gian phản hồi.
+                    </div>
+                </div>
+
+                <span class="local-tag">SIM</span>
+            </div>
+
+            <div class="field">
+                <label>HOST</label>
+                <input id="pingHost" type="text" value="google.com">
+            </div>
+
+            <div class="field">
+                <label>SỐ GÓI</label>
+                <input id="pingCount" type="number" value="4" min="1" max="10">
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="pingRun">⟡ PING</button>
+                <button class="btn btn-secondary" data-clear="pingOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="pingOutput">COPY</button>
+            </div>
+
+            <div class="output" id="pingOutput">Sẵn sàng.</div>
+
+        </article>
+
+        <!-- SUBDOMAIN -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">🌐</div>
+
+                <div>
+                    <div class="tool-title">Subdomain Scanner</div>
+                    <div class="tool-desc">
+                        Mô phỏng quá trình dò subdomain phổ biến.
+                    </div>
+                </div>
+
+                <span class="local-tag">SIM</span>
+            </div>
+
+            <div class="field">
+                <label>TÊN MIỀN</label>
+                <input id="subdomainDomain" type="text" value="example.com">
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="subdomainScan">⟡ QUÉT</button>
+                <button class="btn btn-secondary" data-clear="subdomainOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="subdomainOutput">COPY</button>
+            </div>
+
+            <div class="output" id="subdomainOutput">Sẵn sàng.</div>
+
+        </article>
+
+        <!-- PASSWORD -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">🔑</div>
+
+                <div>
+                    <div class="tool-title">Password Generator</div>
+                    <div class="tool-desc">
+                        Sinh chuỗi ngẫu nhiên bằng Web Crypto API.
+                    </div>
+                </div>
+
+                <span class="local-tag">LOCAL</span>
+            </div>
+
+            <div class="field">
+                <label>ĐỘ DÀI</label>
+                <input id="passLength" type="number" value="20" min="8" max="128">
+            </div>
+
+            <div class="field">
+                <label>KÝ TỰ ĐẶC BIỆT</label>
+                <select id="passSymbols">
+                    <option value="yes">Có</option>
+                    <option value="no">Không</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="genPassword">⟡ TẠO</button>
+                <button class="btn btn-secondary" data-clear="passOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="passOutput">COPY</button>
+            </div>
+
+            <div class="output" id="passOutput">Sẵn sàng.</div>
+
+        </article>
+
+        <!-- HASH -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">🔐</div>
+
+                <div>
+                    <div class="tool-title">Hash Generator</div>
+                    <div class="tool-desc">
+                        Tính hash cục bộ cho dữ liệu nhập vào.
+                    </div>
+                </div>
+
+                <span class="local-tag">LOCAL</span>
+            </div>
+
+            <div class="field">
+                <label>VĂN BẢN</label>
+                <input id="hashInput" type="text" value="Nexyroth">
+            </div>
+
+            <div class="field">
+                <label>THUẬT TOÁN</label>
+                <select id="hashAlgo">
+                    <option value="MD5">MD5</option>
+                    <option value="SHA-1">SHA-1</option>
+                    <option value="SHA-256" selected>SHA-256</option>
+                    <option value="SHA-512">SHA-512</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="hashGen">⟡ BĂM</button>
+                <button class="btn btn-secondary" data-clear="hashOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="hashOutput">COPY</button>
+            </div>
+
+            <div class="output" id="hashOutput">Sẵn sàng.</div>
+
+        </article>
+
+        <!-- CRYPTO -->
+
+        <article class="tool-card">
+
+            <div class="tool-head">
+                <div class="icon">🔒</div>
+
+                <div>
+                    <div class="tool-title">Crypto Lab</div>
+                    <div class="tool-desc">
+                        Base64 Unicode và Caesar cipher.
+                    </div>
+                </div>
+
+                <span class="local-tag">LOCAL</span>
+            </div>
+
+            <div class="field">
+                <label>VĂN BẢN</label>
+                <input id="cryptoInput" type="text" value="Nexyroth xin chào">
+            </div>
+
+            <div class="field">
+                <label>CHẾ ĐỘ</label>
+                <select id="cryptoMode">
+                    <option value="base64-encode">Base64 Encode</option>
+                    <option value="base64-decode">Base64 Decode</option>
+                    <option value="caesar-encode">Caesar Encode · shift 3</option>
+                    <option value="caesar-decode">Caesar Decode · shift 3</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-run" id="cryptoRun">⟡ THỰC HIỆN</button>
+                <button class="btn btn-secondary" data-clear="cryptoOutput">CLEAR</button>
+                <button class="btn btn-secondary" data-copy="cryptoOutput">COPY</button>
+            </div>
+
+            <div class="output" id="cryptoOutput">Sẵn sàng.</div>
+
+        </article>
+
+    </div>
+</div>
+```
+
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<footer>
+    <div class="container footer-inner">
+
+```
+    <div class="footer-brand">
+        <strong>⌘ NEXYROTH</strong> · Hacker Toolkit · v1.1
+    </div>
+
+    <div class="footer-copy">
+        Browser-based cybersecurity learning lab<br>
+        © 2026 · LOCAL PROCESSING · NO BACKEND
+    </div>
+
+</div>
+```
+
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   MATRIX BACKGROUND
+   ============================================================ */
+
+(() => {
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let width = 0;
+    let height = 0;
+    let fontSize = 14;
+    let drops = [];
+
+    const chars = "0123456789ABCDEF<>/\\#$@%&*+-=[]{}";
+
+    function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        fontSize = Math.max(12, Math.min(17, width / 80));
+
+        const columns = Math.ceil(width / fontSize);
+
+        drops = Array.from(
+            { length: columns },
+            () => Math.random() * -40
+        );
+    }
+
+    function draw() {
+        ctx.fillStyle = "rgba(2, 5, 4, .055)";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const char =
+                chars[Math.floor(Math.random() * chars.length)];
+
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            const alpha =
+                .025 +
+                Math.sin(Date.now() / 1300 + i * .35) * .012;
+
+            ctx.globalAlpha = Math.max(.01, alpha);
+            ctx.fillStyle = "#00e89a";
+            ctx.fillText(char, x, y);
+
+            if (y > height && Math.random() > .978) {
+                drops[i] = Math.random() * -20;
+            } else {
+                drops[i] += .18 + Math.random() * .24;
+            }
+        }
+
+        ctx.globalAlpha = 1;
+
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+    draw();
+})();
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+function setOutput(element, text, type = "") {
+    element.className = "output" + (type ? " " + type : "");
+    element.textContent = text;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function secureRandomInt(max) {
+    const array = new Uint32Array(1);
+    const limit = Math.floor(0xFFFFFFFF / max) * max;
+
+    do {
+        crypto.getRandomValues(array);
+    } while (array[0] >= limit);
+
+    return array[0] % max;
+}
+
+/* ============================================================
+   COPY / CLEAR
+   ============================================================ */
+
+document.querySelectorAll("[data-clear]").forEach(button => {
+    button.addEventListener("click", () => {
+        const output = $(button.dataset.clear);
+
+        if (output) {
+            setOutput(output, "Sẵn sàng.");
+        }
+    });
+});
+
+document.querySelectorAll("[data-copy]").forEach(button => {
+    button.addEventListener("click", async () => {
+        const output = $(button.dataset.copy);
+        const text = output.textContent.trim();
+
+        if (!text || text === "Sẵn sàng.") {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+
+            const old = button.textContent;
+            button.textContent = "COPIED ✓";
+
+            setTimeout(() => {
+                button.textContent = old;
+            }, 1200);
+
+        } catch {
+            button.textContent = "COPY ERROR";
+
+            setTimeout(() => {
+                button.textContent = "COPY";
+            }, 1200);
+        }
+    });
+});
+
+/* ============================================================
+   1. PORT SCANNER · SIMULATION
+   ============================================================ */
+
+$("scanPorts").addEventListener("click", async () => {
+
+    const target =
+        $("portTarget").value.trim() || "127.0.0.1";
+
+    const raw =
+        $("portList").value.trim();
+
+    const output =
+        $("portOutput");
+
+    const ports = [
+        ...new Set(
+            raw
+                .split(",")
+                .map(x => Number.parseInt(x.trim(), 10))
+                .filter(
+                    x => Number.isInteger(x) &&
+                    x >= 1 &&
+                    x <= 65535
+                )
+        )
+    ];
+
+    if (!ports.length) {
+        setOutput(
+            output,
+            "❌ Danh sách cổng không hợp lệ.",
+            "err"
+        );
+        return;
+    }
+
+    setOutput(
+        output,
+        "⟡ SIMULATION MODE\nĐang phân tích " +
+        target +
+        " ...",
+        "warn"
+    );
+
+    await sleep(450);
+
+    const results = [];
+
+    for (const port of ports) {
+        await sleep(130 + secureRandomInt(220));
+
+        const open = secureRandomInt(100) > 58;
+
+        results.push(
+            `${String(port).padEnd(5)} ${open ? "MỞ" : "ĐÓNG"}`
+        );
+
+        output.textContent =
+            `TARGET: ${target}\n\n` +
+            results.join("\n");
+    }
+
+    await sleep(250);
+
+    output.textContent +=
+        "\n\n⟡ Hoàn tất · kết quả chỉ là mô phỏng.";
+});
+
+/* ============================================================
+   2. PING · SIMULATION
+   ============================================================ */
+
+$("pingRun").addEventListener("click", async () => {
+
+    const host =
+        $("pingHost").value.trim() || "localhost";
+
+    let count =
+        Number.parseInt($("pingCount").value, 10) || 4;
+
+    count = Math.max(1, Math.min(10, count));
+
+    const output =
+        $("pingOutput");
+
+    setOutput(
+        output,
+        `⟡ SIMULATION MODE\nPING ${host} ...`,
+        "warn"
+    );
+
+    const replies = [];
+
+    for (let i = 1; i <= count; i++) {
+
+        await sleep(150 + secureRandomInt(250));
+
+        const time =
+            (18 + secureRandomInt(83) + Math.random()).toFixed(1);
+
+        const ttl =
+            58 + secureRandomInt(38);
+
+        replies.push(
+            `reply #${i}  ${host}  ` +
+            `time=${time}ms  TTL=${ttl}`
+        );
+
+        output.textContent =
+            replies.join("\n");
+    }
+
+    const loss =
+        secureRandomInt(8);
+
+    output.textContent +=
+        `\n\nPackets: ${count}` +
+        `\nLoss: ${loss}%` +
+        `\n\n⟡ ICMP request không được gửi.`;
+});
+
+/* ============================================================
+   3. SUBDOMAIN · SIMULATION
+   ============================================================ */
+
+$("subdomainScan").addEventListener("click", async () => {
+
+    const domain =
+        $("subdomainDomain").value.trim() ||
+        "example.com";
+
+    const output =
+        $("subdomainOutput");
+
+    const common = [
+        "www",
+        "mail",
+        "api",
+        "dev",
+        "test",
+        "blog",
+        "shop",
+        "cdn",
+        "docs",
+        "app",
+        "admin",
+        "portal",
+        "auth",
+        "login",
+        "support"
+    ];
+
+    setOutput(
+        output,
+        `⟡ SIMULATION MODE\nDò danh sách cho ${domain} ...`,
+        "warn"
+    );
+
+    const found = [];
+
+    for (const sub of common) {
+
+        await sleep(55 + secureRandomInt(95));
+
+        if (secureRandomInt(100) > 66) {
+            found.push(
+                `${sub}.${domain}  [SIMULATED]`
+            );
+        }
+
+        output.textContent =
+            found.length
+                ? found.join("\n")
+                : "Đang phân tích...";
+    }
+
+    if (!found.length) {
+        output.textContent =
+            "Không tìm thấy subdomain mô phỏng.";
+    }
+
+    output.textContent +=
+        "\n\n⟡ Không thực hiện DNS query.";
+});
+
+/* ============================================================
+   4. PASSWORD GENERATOR
+   ============================================================ */
+
+$("genPassword").addEventListener("click", () => {
+
+    let length =
+        Number.parseInt($("passLength").value, 10) || 20;
+
+    length = Math.max(8, Math.min(128, length));
+
+    const symbols =
+        $("passSymbols").value === "yes";
+
+    const output =
+        $("passOutput");
+
+    const uppercase =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    const lowercase =
+        "abcdefghijklmnopqrstuvwxyz";
+
+    const numbers =
+        "0123456789";
+
+    const special =
+        "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+    const charset =
+        uppercase +
+        lowercase +
+        numbers +
+        (symbols ? special : "");
+
+    let password = "";
+
+    for (let i = 0; i < length; i++) {
+        password +=
+            charset[secureRandomInt(charset.length)];
+    }
+
+    setOutput(
+        output,
+        `🔑 ${password}\n\n` +
+        `Length: ${length}\n` +
+        `Source: Web Crypto API`,
+        "ok"
+    );
+});
+
+/* ============================================================
+   5. HASH GENERATOR
+   ============================================================ */
+
+async function shaHash(text, algorithm) {
+
+    const data =
+        new TextEncoder().encode(text);
+
+    const buffer =
+        await crypto.subtle.digest(
+            algorithm,
+            data
+        );
+
+    return Array.from(
+        new Uint8Array(buffer)
+    )
+        .map(
+            byte =>
+                byte.toString(16).padStart(2, "0")
+        )
+        .join("");
+}
+
+/*
+ * MD5 implementation
+ * Used only as a browser demonstration.
+ */
+
+function md5(string) {
+
+    function rotateLeft(lValue, iShiftBits) {
+        return (
+            lValue << iShiftBits
+        ) |
+        (
+            lValue >>> (32 - iShiftBits)
+        );
+    }
+
+    function addUnsigned(lX, lY) {
+
+        const lX4 = lX & 0x40000000;
+        const lY4 = lY & 0x40000000;
+
+        const lX8 = lX & 0x80000000;
+        const lY8 = lY & 0x80000000;
+
+        const lResult =
+            (lX & 0x3FFFFFFF) +
+            (lY & 0x3FFFFFFF);
+
+        if (lX4 & lY4) {
+            return lResult ^ 0x80000000 ^ lX8 ^ lY8;
+        }
+
+        if (lX4 | lY4) {
+
+            if (lResult & 0x40000000) {
+                return lResult ^
+                    0xC0000000 ^
+                    lX8 ^
+                    lY8;
+            }
+
+            return lResult ^
+                0x40000000 ^
+                lX8 ^
+                lY8;
+        }
+
+        return lResult ^ lX8 ^ lY8;
+    }
+
+    function F(x, y, z) {
+        return (x & y) | (~x & z);
+    }
+
+    function G(x, y, z) {
+        return (x & z) | (y & ~z);
+    }
+
+    function H(x, y, z) {
+        return x ^ y ^ z;
+    }
+
+    function I(x, y, z) {
+        return y ^ (x | ~z);
+    }
+
+    function FF(a,b,c,d,x,s,ac) {
+        a = addUnsigned(
+            a,
+            addUnsigned(
+                addUnsigned(F(b,c,d), x),
+                ac
+            )
+        );
+        return addUnsigned(
+            rotateLeft(a,s),
+            b
+        );
+    }
+
+    function GG(a,b,c,d,x,s,ac) {
+        a = addUnsigned(
+            a,
+            addUnsigned(
+                addUnsigned(G(b,c,d), x),
+                ac
+            )
+        );
+        return addUnsigned(
+            rotateLeft(a,s),
+            b
+        );
+    }
+
+    function HH(a,b,c,d,x,s,ac) {
+        a = addUnsigned(
+            a,
+            addUnsigned(
+                addUnsigned(H(b,c,d), x),
+                ac
+            )
+        );
+        return addUnsigned(
+            rotateLeft(a,s),
+            b
+        );
+    }
+
+    function II(a,b,c,d,x,s,ac) {
+        a = addUnsigned(
+            a,
+            addUnsigned(
+                addUnsigned(I(b,c,d), x),
+                ac
+            )
+        );
+        return addUnsigned(
+            rotateLeft(a,s),
+            b
+        );
+    }
+
+    function convertToWordArray(str) {
+
+        const messageLength = str.length;
+
+        const numberOfWordsTemp =
+            messageLength + 8;
+
+        const numberOfWords =
+            (
+                numberOfWordsTemp -
+                numberOfWordsTemp % 64
+            ) / 64 + 1;
+
+        const wordArray =
+            new Array(numberOfWords * 16)
+                .fill(0);
+
+        let byteCount = 0;
+
+        while (byteCount < messageLength) {
+
+            const wordCount =
+                (byteCount - byteCount % 4) / 4;
+
+            const bytePosition =
+                (byteCount % 4) * 8;
+
+            wordArray[wordCount] |=
+                str.charCodeAt(byteCount) <<
+                bytePosition;
+
+            byteCount++;
+        }
+
+        const wordCount =
+            (byteCount - byteCount % 4) / 4;
+
+        const bytePosition =
+            (byteCount % 4) * 8;
+
+        wordArray[wordCount] |=
+            0x80 << bytePosition;
+
+        wordArray[numberOfWords * 16 - 2] =
+            messageLength * 8;
+
+        wordArray[numberOfWords * 16 - 1] =
+            Math.floor(messageLength / 0x20000000);
+
+        return wordArray;
+    }
+
+    function wordToHex(value) {
+
+        let result = "";
+
+        for (let i = 0; i <= 3; i++) {
+
+            const byte =
+                (value >>> (i * 8)) & 255;
+
+            result +=
+                ("0" + byte.toString(16))
+                .slice(-2);
+        }
+
+        return result;
+    }
+
+    function utf8Encode(text) {
+
+        return unescape(
+            encodeURIComponent(text)
+        );
+    }
+
+    const x =
+        convertToWordArray(
+            utf8Encode(string)
+        );
+
+    let a = 0x67452301;
+    let b = 0xEFCDAB89;
+    let c = 0x98BADCFE;
+    let d = 0x10325476;
+
+    const S11=7,S12=12,S13=17,S14=22;
+    const S21=5,S22=9,S23=14,S24=20;
+    const S31=4,S32=11,S33=16,S34=23;
+    const S41=6,S42=10,S43=15,S44=21;
+
+    for (let k = 0; k < x.length; k += 16) {
+
+        const AA=a;
+        const BB=b;
+        const CC=c;
+        const DD=d;
+
+        a=FF(a,b,c,d,x[k+0],S11,0xD76AA478);
+        d=FF(d,a,b,c,x[k+1],S12,0xE8C7B756);
+        c=FF(c,d,a,b,x[k+2],S13,0x242070DB);
+        b=FF(b,c,d,a,x[k+3],S14,0xC1BDCEEE);
+        a=FF(a,b,c,d,x[k+4],S11,0xF57C0FAF);
+        d=FF(d,a,b,c,x[k+5],S12,0x4787C62A);
+        c=FF(c,d,a,b,x[k+6],S13,0xA8304613);
+        b=FF(b,c,d,a,x[k+7],S14,0xFD469501);
+        a=FF(a,b,c,d,x[k+8],S11,0x698098D8);
+        d=FF(d,a,b,c,x[k+9],S12,0x8B44F7AF);
+        c=FF(c,d,a,b,x[k+10],S13,0xFFFF5BB1);
+        b=FF(b,c,d,a,x[k+11],S14,0x895CD7BE);
+        a=FF(a,b,c,d,x[k+12],S11,0x6B901122);
+        d=FF(d,a,b,c,x[k+13],S12,0xFD987193);
+        c=FF(c,d,a,b,x[k+14],S13,0xA679438E);
+        b=FF(b,c,d,a,x[k+15],S14,0x49B40821);
+
+        a=GG(a,b,c,d,x[k+1],S21,0xF61E2562);
+        d=GG(d,a,b,c,x[k+6],S22,0xC040B340);
+        c=GG(c,d,a,b,x[k+11],S23,0x265E5A51);
+        b=GG(b,c,d,a,x[k+0],S24,0xE9B6C7AA);
+        a=GG(a,b,c,d,x[k+5],S21,0xD62F105D);
+        d=GG(d,a,b,c,x[k+10],S22,0x02441453);
+        c=GG(c,d,a,b,x[k+15],S23,0xD8A1E681);
+        b=GG(b,c,d,a,x[k+4],S24,0xE7D3FBC8);
+        a=GG(a,b,c,d,x[k+9],S21,0x21E1CDE6);
+        d=GG(d,a,b,c,x[k+14],S22,0xC33707D6);
+        c=GG(c,d,a,b,x[k+3],S23,0xF4D50D87);
+        b=GG(b,c,d,a,x[k+8],S24,0x455A14ED);
+        a=GG(a,b,c,d,x[k+13],S21,0xA9E3E905);
+        d=GG(d,a,b,c,x[k+2],S22,0xFCEFA3F8);
+        c=GG(c,d,a,b,x[k+7],S23,0x676F02D9);
+        b=GG(b,c,d,a,x[k+12],S24,0x8D2A4C8A);
+
+        a=HH(a,b,c,d,x[k+5],S31,0xFFFA3942);
+        d=HH(d,a,b,c,x[k+8],S32,0x8771F681);
+        c=HH(c,d,a,b,x[k+11],S33,0x6D9D6122);
+        b=HH(b,c,d,a,x[k+14],S34,0xFDE5380C);
+        a=HH(a,b,c,d,x[k+1],S31,0xA4BEEA44);
+        d=HH(d,a,b,c,x[k+4],S32,0x4BDECFA9);
+        c=HH(c,d,a,b,x[k+7],S33,0xF6BB4B60);
+        b=HH(b,c,d,a,x[k+10],S34,0xBEBFBC70);
+        a=HH(a,b,c,d,x[k+13],S31,0x289B7EC6);
+        d=HH(d,a,b,c,x[k+0],S32,0xEAA127FA);
+        c=HH(c,d,a,b,x[k+3],S33,0xD4EF3085);
+        b=HH(b,c,d,a,x[k+6],S34,0x04881D05);
+        a=HH(a,b,c,d,x[k+9],S31,0xD9D4D039);
+        d=HH(d,a,b,c,x[k+12],S32,0xE6DB99E5);
+        c=HH(c,d,a,b,x[k+15],S33,0x1FA27CF8);
+        b=HH(b,c,d,a,x[k+2],S34,0xC4AC5665);
+
+        a=II(a,b,c,d,x[k+0],S41,0xF4292244);
+        d=II(d,a,b,c,x[k+7],S42,0x432AFF97);
+        c=II(c,d,a,b,x[k+14],S43,0xAB9423A7);
+        b=II(b,c,d,a,x[k+5],S44,0xFC93A039);
+        a=II(a,b,c,d,x[k+12],S41,0x655B59C3);
+        d=II(d,a,b,c,x[k+3],S42,0x8F0CCC92);
+        c=II(c,d,a,b,x[k+10],S43,0xFFEFF47D);
+        b=II(b,c,d,a,x[k+1],S44,0x85845DD1);
+        a=II(a,b,c,d,x[k+8],S41,0x6FA87E4F);
+        d=II(d,a,b,c,x[k+15],S42,0xFE2CE6E0);
+        c=II(c,d,a,b,x[k+6],S43,0xA3014314);
+        b=II(b,c,d,a,x[k+13],S44,0x4E0811A1);
+        a=II(a,b,c,d,x[k+4],S41,0xF7537E82);
+        d=II(d,a,b,c,x[k+11],S42,0xBD3AF235);
+        c=II(c,d,a,b,x[k+2],S43,0x2AD7D2BB);
+        b=II(b,c,d,a,x[k+9],S44,0xEB86D391);
+
+        a=addUnsigned(a,AA);
+        b=addUnsigned(b,BB);
+        c=addUnsigned(c,CC);
+        d=addUnsigned(d,DD);
+    }
+
+    return (
+        wordToHex(a) +
+        wordToHex(b) +
+        wordToHex(c) +
+        wordToHex(d)
+    ).toLowerCase();
+}
+
+$("hashGen").addEventListener("click", async () => {
+
+    const text = $("hashInput").value;
+
+    const algorithm = $("hashAlgo").value;
+
+    const output = $("hashOutput");
+
+    if (!text) {
+        setOutput(
+            output,
+            "❌ Vui lòng nhập văn bản.",
+            "err"
+        );
+        return;
+    }
+
+    try {
+
+        let result;
+
+        if (algorithm === "MD5") {
+            result = md5(text);
+        } else {
+            result = await shaHash(
+                text,
+                algorithm
+            );
+        }
+
+        setOutput(
+            output,
+            `${algorithm}\n${result}`,
+            "ok"
+        );
+
+    } catch (error) {
+
+        setOutput(
+            output,
+            "❌ " + error.message,
+            "err"
+        );
+    }
+});
+
+/* ============================================================
+   6. CRYPTO LAB
+   ============================================================ */
+
+function base64EncodeUnicode(text) {
+
+    const bytes =
+        new TextEncoder().encode(text);
+
+    let binary = "";
+
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+}
+
+function base64DecodeUnicode(base64) {
+
+    const binary = atob(base64);
+
+    const bytes =
+        Uint8Array.from(
+            binary,
+            char => char.charCodeAt(0)
+        );
+
+    return new TextDecoder().decode(bytes);
+}
+
+function caesarShift(text, shift) {
+
+    return [...text].map(char => {
+
+        const code =
+            char.charCodeAt(0);
+
+        if (code >= 65 && code <= 90) {
+            return String.fromCharCode(
+                (
+                    (code - 65 + shift) % 26 +
+                    26
+                ) % 26 + 65
+            );
+        }
+
+        if (code >= 97 && code <= 122) {
+            return String.fromCharCode(
+                (
+                    (code - 97 + shift) % 26 +
+                    26
+                ) % 26 + 97
+            );
+        }
+
+        return char;
+
+    }).join("");
+}
+
+$("cryptoRun").addEventListener("click", () => {
+
+    const text =
+        $("cryptoInput").value;
+
+    const mode =
+        $("cryptoMode").value;
+
+    const output =
+        $("cryptoOutput");
+
+    if (!text) {
+        setOutput(
+            output,
+            "❌ Vui lòng nhập văn bản.",
+            "err"
+        );
+        return;
+    }
+
+    try {
+
+        let result = "";
+
+        switch (mode) {
+
+            case "base64-encode":
+                result =
+                    base64EncodeUnicode(text);
+                break;
+
+            case "base64-decode":
+                result =
+                    base64DecodeUnicode(text);
+                break;
+
+            case "caesar-encode":
+                result =
+                    caesarShift(text, 3);
+                break;
+
+            case "caesar-decode":
+                result =
+                    caesarShift(text, -3);
+                break;
+        }
+
+        setOutput(
+            output,
+            result,
+            "ok"
+        );
+
+    } catch (error) {
+
+        setOutput(
+            output,
+            "❌ " + error.message,
+            "err"
+        );
+    }
+});
+
+/* ============================================================
+   CONSOLE SIGNATURE
+   ============================================================ */
+
+console.log(
+`%c
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│   NEXYROTH HACKER TOOLKIT                           │
+│   SECURITY SIMULATION LAB · v1.1                   │
+│                                                     │
+│   LOCAL PROCESSING                                  │
+│   NO BACKEND                                        │
+│   NETWORK TOOLS = SIMULATION                        │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+`,
+"color:#00e89a;font-family:monospace;"
+);
+
+</script>
+
+</body>
+</html>
